@@ -5,22 +5,22 @@ import { validateUserSchema } from "./user.validation"
 const router: Router = express.Router()
 
 router.post(
-  "/users",
+  "/",
   validateRequest(validateUserSchema.createUserSchemaValidation),
   userController.createUser,
 )
 
-router.get("/users", userController.getAllUser)
+router.get("/", userController.getAllUser)
 
-router.get("/users/:userId", userController.getUser)
+router.get("/:userId", userController.getUser)
 
 router.put(
-  "/users/:userId",
+  "/:userId",
   validateRequest(validateUserSchema.updateUserSchemaValidation),
   userController.updateOneUser,
 )
-router.delete("/users/:userId", userController.deleteOneUser)
+router.delete("/:userId", userController.deleteOneUser)
 
-router.put("/users/:userId/orders", userController.createOrder)
+router.put("/:userId/orders", userController.createOrder)
 
 export const userRouter = router
