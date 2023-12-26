@@ -1,8 +1,8 @@
-interface IOrder {
-  productName: string
-  price: number
-  quantity: number
-}
+// interface IOrder {
+//   productName: string
+//   price: number
+//   quantity: number
+// }
 
 interface IUser {
   userId: number
@@ -21,7 +21,7 @@ interface IUser {
     city: string
     country: string
   }
-  orders: IOrder[]
+  // orders: IOrder[]
 }
 
 
