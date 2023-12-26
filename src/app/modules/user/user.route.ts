@@ -9,7 +9,7 @@ router.route("/")
 router
   .route("/:id")
   .get(userController.getSingleUser)
-  .patch(userController.updateUser)
+  .put(userController.updateUser)
 //   .delete(userController.deleteUser)
 
 export const userRoutes = router
