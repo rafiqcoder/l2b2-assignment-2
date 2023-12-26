@@ -1,15 +1,26 @@
-import express from "express"
-import { userController } from "./user.controller"
+import express, { Router } from 'express';
+import validateRequest from '../../middleware/validateRequest';
+import { userController } from './user.controller';
+import { validateUserSchema } from './user.validation';
+const router: Router = express.Router();
 
-const router = express.Router()
+router.post(
+  '/users',
+  validateRequest(validateUserSchema.createUserSchemaValidation),
+  userController.createUser,
+);
 
-router.route("/")
-.post(userController.createUser)
-.get(userController.getAlluser)
-router
-  .route("/:id")
-  .get(userController.getSingleUser)
-  .put(userController.updateUser)
-//   .delete(userController.deleteUser)
+router.get('/users', userController.getAllUser);
 
-export const userRoutes = router
+router.get('/users/:userId', userController.getUser);
+
+router.put(
+  '/users/:userId',
+  validateRequest(validateUserSchema.updateUserSchemaValidation),
+  userController.updateOneUser,
+);
+router.delete('/users/:userId', userController.deleteOneUser);
+
+router.put('/users/:userId/orders', userController.createOrder);
+
+export const userRouter = router;

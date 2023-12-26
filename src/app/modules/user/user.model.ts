@@ -1,79 +1,93 @@
-import mongoose, { Schema, model } from "mongoose"
-import { IUser } from "./user.interface"
-import bcrypt from "bcrypt"
+import bcrypt from 'bcrypt';
+import { Schema, model } from 'mongoose';
 
-const userSchema: Schema<IUser> = new Schema({
+import config from '../../config';
+import { TOrder, TUser } from './user.interface';
+
+const orderSchema = new Schema<TOrder>([
+  {
+    productName: { type: String },
+    price: { type: Number },
+    quantity: { type: Number },
+  },
+]);
+
+const userSchema = new Schema<TUser>(
+  {
     userId: {
-        type: Number,
-        required: true,
-        unique: true
+      type: Number,
+      required: [true, 'User id is required!'],
+      trim: true,
+      unique: true,
     },
     username: {
-        type: String,
-        required: true,
-        unique: true
+      type: String,
+      required: [true, 'Username is required!'],
+      trim: true,
+      unique: true,
     },
-  fullName: {
+    fullName: {
       firstName: {
-          type: String,
-          required: true
+        type: String,
+        required: [true, 'firstname is required!'],
+        maxlength: [8, 'Name should be 8 charectar'],
+        trim: true,
       },
       lastName: {
-          type: String,
-          required: true
-      },
-  },
-    age: {
-        type: Number,
-        required: true
-    },
-    email: {
         type: String,
-        required: true,
-        unique: true
+        required: [true, 'lastname is required!'],
+        trim: true,
+      },
+    },
+    age: { type: Number, required: [true, 'Age is required!'] },
+    email: {
+      type: String,
+      required: [true, 'Email is required!'],
+      unique: true,
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: [true, 'Password is required!'],
+      maxlength: 20,
+      trim: true,
     },
     isActive: {
-        type: Boolean,
-        default: true
+      type: Boolean,
+      required: [true, 'IsActive is required!'],
+      trim: true,
     },
-    hobbies: {
-        type: [String],
-        default: []
+    hobbies: { type: [String], required: [true, 'Hobbies is required!'] },
+    address: {
+      street: { type: String, required: [true, 'Street is required!'] },
+      city: { type: String, required: [true, 'City is required!'] },
+      country: {
+        type: String,
+        required: [true, 'Conuntry is required!'],
+        trim: true,
+      },
     },
-  address: {
-      street: {
-          type: String,
-          required: true
-      },
-      city: {
-          type: String,
-          required: true
-      },
-    country: { type: String, required: true },
-  }
-//   orders: [
-//      { type: mongoose.Schema.ObjectId,
-//           ref: "user"
-//       }
-//   ],
-})
+    orders: [orderSchema],
+  },
+  {
+    versionKey: false,
+  },
+);
 
-userSchema.pre("save", async function (next) {
-  if (!this.password) return next()
-  // console.log("before hash",this.password);
-  this.password = await bcrypt.hashSync(this.password, 12)
-  // console.log("after hash",this.password);
-  next()
-})
+// use middleware
 
-userSchema.methods.checkPassword = async function (
-  candidatePassword: string,
-  userPassword: string,
-) {
-  // console.log("checking",candidatePassword,userPassword)
-  return await bcrypt.compareSync(userPassword, candidatePassword)
-}
+userSchema.pre('save', async function (next) {
+  const student = this;
+  student.password = await bcrypt.hash(
+    student.password,
+    Number(config.bcrypt_salt_round),
+  );
+  next();
+});
 
-const User = model<IUser>("User", userSchema)
-export default User
+userSchema.post('save', function (doc, next) {
+  doc.password = '';
+  next();
+});
 
+export const UserModel = model<TUser>('Users', userSchema);
